@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة النظام الصحي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
+</head>
+<body class="bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-slate-900/40 backdrop-blur-xl p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-800">
+        <div class="flex flex-col items-center mb-8">
+            <div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 text-blue-400 mb-3">
+                <i data-lucide="activity" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">Medcare</h1>
+            <p class="text-sm text-slate-400 mt-1">منصة المتابعة الطبية الذكية</p>
+        </div>
+
+        <div id="login-box" class="space-y-5">
+            <h2 class="text-xl font-bold text-white mb-2">تسجيل الدخول</h2>
+            <div>
+                <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <input type="password" id="login-password" placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20">
+                <i data-lucide="log-in" class="w-5 h-5"></i> دخول النظام
+            </button>
+            <p class="text-center text-sm text-slate-400 mt-4">ليس لديك حساب؟ <span onclick="toggleAuth()" class="text-blue-400 font-semibold cursor-pointer hover:underline">أنشئ حساباً الآن</span></p>
+        </div>
+
+        <div id="signup-box" class="space-y-5 hidden">
+            <h2 class="text-xl font-bold text-white mb-2">إنشاء حساب جديد</h2>
+            <div>
+                <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+            </div>
+            <div>
+                <input type="password" id="signup-password" placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+            </div>
+            <div>
+                <select id="signup-role" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    <option value="patient">مريض (Patient)</option>
+                    <option value="caregiver">مقدم رعاية (Caregiver)</option>
+                   
+                </select>
+            </div>
+            <button id="signup-btn" class="w-full bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-green-600/20">
+                <i data-lucide="user-plus" class="w-5 h-5"></i> تسجيل الحساب
+            </button>
+            <p class="text-center text-sm text-slate-400 mt-4">لديك حساب بالفعل؟ <span onclick="toggleAuth()" class="text-green-400 font-semibold cursor-pointer hover:underline">سجل دخولك</span></p>
+        </div>
+    </div>
+
+    <script>
+        // دالة التبديل الفوري الواجهة
+        window.toggleAuth = () => {
+            document.getElementById('login-box').classList.toggle('hidden');
+            document.getElementById('signup-box').classList.toggle('hidden');
+        };
+        lucide.createIcons();
+    </script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

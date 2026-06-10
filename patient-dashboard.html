@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابتي الصحية - لوحة تحكم المريض</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <div class="w-72 bg-[#0b0f19] flex flex-col justify-between p-6 z-10 text-white">
+        <div>
+            <div class="flex items-center justify-between bg-[#111827] border border-slate-800 rounded-2xl p-4 mb-8">
+                <div class="flex items-center gap-3 w-full justify-between">
+                    <h1 class="text-base font-bold text-slate-200">بوابتي الصحية</h1>
+                    <span class="p-2 bg-blue-900/40 text-blue-400 rounded-xl text-lg">🛡️</span>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <button id="tab-meds" class="flex items-center gap-3 px-4 py-3 bg-rose-600 text-white font-semibold rounded-xl transition w-full text-right">
+                    <span>💊</span> أدويتي اليوم
+                </button>
+                <button id="tab-report" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition w-full text-right">
+                    <span>📊</span> تقرير الالتزام
+                </button>
+            </nav>
+        </div>
+        
+        <button id="logout-btn" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-950/30 rounded-xl transition w-full text-right font-semibold">
+            <span>🚪</span> خروج
+        </button>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-y-auto p-8">
+        
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">أهلاً بك يا <span id="patient-name" class="text-rose-500">...</span> في فضاء صحتك العافية 👋</h2>
+            <p class="text-sm text-slate-400 mt-1">دعنا نتابع خطتك العلاجية اليوم بدقة وعناية</p>
+        </div>
+
+        <div id="section-meds" class="space-y-8">
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-bold text-slate-700">معدل إنجاز خطتك اليومية</span>
+                    <span id="progress-text" class="text-rose-600 font-bold">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-rose-50 h-full w-[0%] rounded-full transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4">جدول الأدوية المقررة</h3>
+                    
+                    <div id="medications-list" class="space-y-3">
+                        <div class="text-slate-400 text-center py-6">جاري تحميل جدول أدويتك من قاعدة البيانات...</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-1 h-fit lg:sticky lg:top-8 flex flex-col">
+                    <h3 class="font-bold text-lg text-slate-800 text-center mb-4">التزامي الأسبوعي</h3>
+                    <div class="relative w-full max-w-[200px] mx-auto">
+                        <canvas id="weeklyAdherenceChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="section-report" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4">معدل الانضباط الشهري</h3>
+                    <div class="flex items-center gap-4 py-4">
+                        <span class="p-4 bg-rose-50 text-rose-500 rounded-2xl text-3xl">📊</span>
+                        <div>
+                            <h4 class="text-3xl font-bold text-slate-800">92%</h4>
+                            <p class="text-xs text-slate-400 mt-1">نسبة التزامك الكلية المحدثة من الأطباء</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-2">💡 نصيحة الطاقم الطبي لك</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mt-2">التزامك ممتاز جداً هذا الأسبوع بمواعيد العلاج المحددة، استمر على هذا الأداء الرائع للحفاظ على استقرار مؤشراتك الحيوية!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h3 class="font-bold text-lg text-slate-800 mb-4">منحنى الالتزام اليومي</h3>
+                <div class="w-full max-h-[280px]">
+                    <canvas id="monthlyLineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // تم إضافة دالة deleteDoc هنا بالسطر التالي ليتم التمكن من الحذف النهائي
+        import { doc, getDoc, collection, query, where, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        let weeklyChart;
+
+        // 1. حماية البوابة + المزامنة الحية للأدوية
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html'; 
+            } else {
+                // جلب اسم المريض للترحيب
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists() && docSnap.data().name) {
+                        document.getElementById('patient-name').innerText = docSnap.data().name;
+                    } else {
+                        document.getElementById('patient-name').innerText = user.email.split('@')[0];
+                    }
+                } catch (error) {
+                    document.getElementById('patient-name').innerText = "المريض العزيز";
+                }
+
+                // مراقبة أدوية المريض الحالي لحظياً
+                const medsQuery = query(collection(db, "medications"), where("patientId", "==", user.uid));
+                
+                onSnapshot(medsQuery, (snapshot) => {
+                    const medsListContainer = document.getElementById('medications-list');
+                    if (!medsListContainer) return;
+
+                    medsListContainer.innerHTML = ""; 
+
+                    let completedCount = 0;
+                    let totalCount = snapshot.size;
+
+                    if (totalCount === 0) {
+                        medsListContainer.innerHTML = `
+                            <div class="text-slate-400 text-center py-8">
+                                لا توجد أدوية مضافة في خطتك العلاجية حالياً. تواصل مع طبيبك لإضافة الأدوية 💊
+                            </div>
+                        `;
+                        updateProgress(100, 0, 0); 
+                        return;
+                    }
+
+                    snapshot.forEach((medDoc) => {
+                        const medData = medDoc.data();
+                        const medId = medDoc.id;
+                        const isCompleted = medData.status === 'completed';
+
+                        if (isCompleted) completedCount++;
+
+                        const card = document.createElement('div');
+                        card.className = "p-4 bg-white border border-slate-100 rounded-xl flex justify-between items-center shadow-sm";
+                        
+                        let actionButtons = "";
+                        if (isCompleted) {
+                            actionButtons = `
+                                <div class="flex items-center gap-3">
+                                    <span class="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg">✓ تم أخذها</span>
+                                    <button data-id="${medId}" class="delete-med-btn p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-sm transition" title="حذف العلاج">🗑️</button>
+                                </div>
+                            `;
+                        } else {
+                            actionButtons = `
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg">⏳ معلق</span>
+                                    <button data-id="${medId}" class="take-med-btn px-3 py-1.5 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700 transition shadow-sm">تأكيد الأخذ</button>
+                                    <button data-id="${medId}" class="delete-med-btn p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-sm transition" title="حذف العلاج">🗑️</button>
+                                </div>
+                            `;
+                        }
+
+                        card.innerHTML = `
+                            <div>
+                                <h4 class="font-bold text-slate-800">${medData.name}</h4>
+                                <p class="text-xs text-slate-400 mt-0.5">${medData.time}</p>
+                            </div>
+                            ${actionButtons}
+                        `;
+                        medsListContainer.appendChild(card);
+                    });
+
+                    const percentage = Math.round((completedCount / totalCount) * 100);
+                    updateProgress(percentage, completedCount, totalCount);
+                });
+            }
+        });
+
+        // دالة تحديث البار والرسم البياني
+        function updateProgress(percentage, completed, total) {
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${percentage}%`;
+            
+            if (weeklyChart) {
+                const remaining = total - completed;
+                weeklyChart.data.datasets[0].data = total === 0 ? [100, 0] : [completed, remaining];
+                weeklyChart.update();
+            }
+        }
+
+        // 2. منطق زر "تأكيد أخذ الدواء"
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.take-med-btn');
+            if (btn) {
+                const medId = btn.getAttribute('data-id');
+                try {
+                    const medRef = doc(db, "medications", medId);
+                    await updateDoc(medRef, { status: "completed" });
+                } catch (error) {
+                    console.error("خطأ في تحديث حالة الدواء:", error);
+                }
+            }
+        });
+
+        // 🔥 3. منطق زر "حذف العلاج نهائياً" 🔥
+        document.addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.delete-med-btn');
+            if (deleteBtn) {
+                const medId = deleteBtn.getAttribute('data-id');
+                
+                // نافذة تأكيد حماية للمريض لمنع الحذف بالخطأ
+                const confirmDelete = confirm("هل أنت متأكد تماماً من رغبتك في مسح هذا الدواء من جدولك اليومي؟");
+                
+                if (confirmDelete) {
+                    try {
+                        const medRef = doc(db, "medications", medId);
+                        await deleteDoc(medRef); // دالة المسح من الفايرستور
+                    } catch (error) {
+                        console.error("حدث خطأ أثناء حذف الدواء:", error);
+                        alert("عذراً، فشل حذف الدواء. يرجى مراجعة الاتصال.");
+                    }
+                }
+            }
+        });
+
+        // 4. تفعيل التنقل التفاعلي بين التبويبات
+        const tabMeds = document.getElementById('tab-meds');
+        const tabReport = document.getElementById('tab-report');
+        const sectionMeds = document.getElementById('section-meds');
+        const sectionReport = document.getElementById('section-report');
+
+        function resetPatientTabs() {
+            tabMeds.className = "flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition w-full text-right";
+            tabReport.className = "flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition w-full text-right";
+            sectionMeds.classList.add('hidden');
+            sectionReport.classList.add('hidden');
+        }
+
+        tabMeds.addEventListener('click', () => {
+            resetPatientTabs();
+            tabMeds.className = "flex items-center gap-3 px-4 py-3 bg-rose-600 text-white font-semibold rounded-xl transition w-full text-right";
+            sectionMeds.classList.remove('hidden');
+        });
+
+        tabReport.addEventListener('click', () => {
+            resetPatientTabs();
+            tabReport.className = "flex items-center gap-3 px-4 py-3 bg-rose-600 text-white font-semibold rounded-xl transition w-full text-right";
+            sectionReport.classList.remove('hidden');
+            monthlyLineChart.update();
+        });
+
+        // 5. بناء الرسوم البيانية التفاعلية (Chart.js)
+        const ctxWeekly = document.getElementById('weeklyAdherenceChart').getContext('2d');
+        weeklyChart = new Chart(ctxWeekly, {
+            type: 'doughnut',
+            data: {
+                labels: ['ملتزم به', 'متبقي معلق'],
+                datasets: [{
+                    data: [0, 100], 
+                    backgroundColor: ['#f43f5e', '#cbd5e1'], 
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 12 }, boxWidth: 10 } }
+                }
+            }
+        });
+
+        const ctxLine = document.getElementById('monthlyLineChart').getContext('2d');
+        const monthlyLineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                datasets: [{
+                    label: 'معدل الانضباط اليومي %',
+                    data: [90, 95, 100, 85, 100, 95, 100],
+                    borderColor: '#f43f5e',
+                    backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { max: 100, min: 0, ticks: { font: { family: 'Cairo' } } },
+                    x: { ticks: { font: { family: 'Cairo' } } }
+                },
+                plugins: { legend: { labels: { font: { family: 'Cairo' } } } }
+            }
+        });
+
+        // 6. زر خروج المريض الآمن
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            signOut(auth).then(() => { window.location.href = 'index.html'; });
+        });
+    </script>
+</body>
+</html>
+

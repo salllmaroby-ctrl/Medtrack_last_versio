@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير - النظام الطبي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <div class="w-64 bg-white border-l border-slate-100 flex flex-col justify-between p-6 z-10">
+        <div>
+            <div class="flex items-center gap-2 mb-8 px-2">
+                <span class="text-2xl">🛡️</span>
+                <h1 class="text-xl font-bold text-slate-800">بوابة المدير</h1>
+            </div>
+            <nav class="space-y-2">
+                <button id="tab-stats" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl transition w-full text-right">
+                    <span>📊</span> الإحصائيات
+                </button>
+                <button id="tab-users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition w-full text-right">
+                    <span>👥</span> إدارة المستخدمين
+                </button>
+                <button id="tab-settings" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition w-full text-right">
+                    <span>⚙️</span> الإعدادات
+                </button>
+            </nav>
+        </div>
+        <button id="logout-btn" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition w-full text-right font-semibold">
+            <span>🚪</span> خروج
+        </button>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-y-auto p-8">
+        
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">مرحباً بك، <span id="admin-name" class="text-blue-600">جاري التحميل...</span> 👋</h2>
+            <p class="text-sm text-slate-400 mt-1">نظرة عامة على أداء ومميزات النظام الصحي</p>
+        </div>
+
+        <div id="section-stats" class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                        <span class="text-sm font-medium text-slate-400">إجمالي المرضى</span>
+                        <h3 id="total-patients" class="text-3xl font-bold text-slate-800 mt-2">0</h3>
+                    </div>
+                    <span class="p-4 bg-blue-50 text-blue-500 rounded-2xl text-2xl">💙</span>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                        <span class="text-sm font-medium text-slate-400">مقدمي الرعاية</span>
+                        <h3 id="total-doctors" class="text-3xl font-bold text-slate-800 mt-2">0</h3>
+                    </div>
+                    <span class="p-4 bg-purple-50 text-purple-500 rounded-2xl text-2xl">👨‍⚕️</span>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                        <span class="text-sm font-medium text-slate-400">سيرفرات النظام</span>
+                        <h3 class="text-3xl font-bold text-emerald-500 mt-2">99.9%</h3>
+                    </div>
+                    <span class="p-4 bg-emerald-50 text-emerald-500 rounded-2xl text-2xl">📟</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-1 flex flex-col justify-between">
+                    <div class="mb-4">
+                        <h4 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                            <span>⏱️</span> توزيع الحسابات
+                        </h4>
+                    </div>
+                    <div class="relative w-full max-w-[220px] mx-auto py-4">
+                        <canvas id="rolesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden lg:col-span-2">
+                    <div class="p-6 border-b border-slate-50">
+                        <h4 class="font-bold text-lg text-slate-800">الحسابات النشطة مؤخراً</h4>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 text-sm font-semibold border-b border-slate-100">
+                                    <th class="py-4 px-6">المستخدم</th>
+                                    <th class="py-4 px-6">الدور</th>
+                                    <th class="py-4 px-6">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-accounts-table">
+                                <tr class="text-slate-400 text-center">
+                                    <td colspan="3" class="py-8">جاري مزامنة قاعدة البيانات الحية...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-users" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-slate-800">قائمة التحكم الشاملة بجميع الحسابات</h3>
+                    <span class="px-4 py-2 bg-blue-50 text-blue-600 text-sm font-bold rounded-xl">قاعدة البيانات نشطة تلقائياً</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-sm font-semibold border-b border-slate-100">
+                                <th class="py-4 px-6">الاسم / البريد الإلكتروني</th>
+                                <th class="py-4 px-6">الصلاحية البرمجية</th>
+                                <th class="py-4 px-6">الحالة الحالية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-users-table">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-settings" class="hidden">
+            <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm max-w-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-6">⚙️ إعدادات النظام العام</h3>
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-slate-700">وضع الصيانة الذكي</p>
+                            <p class="text-xs text-slate-400 mt-1">تفعيل أو تعطيل دخول النظام مؤقتاً للتحديثات</p>
+                        </div>
+                        <span class="text-emerald-500 font-bold text-sm">مستقر وجاهز</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-slate-700">قاعدة بيانات الفايربيز (Firebase)</p>
+                            <p class="text-xs text-slate-400 mt-1">حالة الاتصال المباشر بـ Firestore</p>
+                        </div>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full">متصل بنجاح</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // -------------------------------------------------------------
+        // 1. حماية الصفحة + جلب وعرض اسم الأدمن المسجل حالياً ديناميكياً
+        // -------------------------------------------------------------
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html'; 
+            } else {
+                try {
+                    // الذهاب لتوثيق الأدمن في كولكشن الـ users لمعرفة اسمه الحقيقي
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists() && docSnap.data().name) {
+                        document.getElementById('admin-name').innerText = docSnap.data().name;
+                    } else {
+                        // في حال لم يكتب اسم بالكامل، يعرض الايميل الخاص به كبديل احترافي
+                        document.getElementById('admin-name').innerText = user.email.split('@')[0];
+                    }
+                } catch (error) {
+                    console.log("خطأ في جلب اسم المسؤول:", error);
+                    document.getElementById('admin-name').innerText = "المسؤول";
+                }
+            }
+        });
+
+        // -------------------------------------------------------------
+        // 2. منطق تشغيل أزرار الـ Sidebar والتنقل التلقائي بين الأقسام
+        // -------------------------------------------------------------
+        const tabStats = document.getElementById('tab-stats');
+        const tabUsers = document.getElementById('tab-users');
+        const tabSettings = document.getElementById('tab-settings');
+
+        const sectionStats = document.getElementById('section-stats');
+        const sectionUsers = document.getElementById('section-users');
+        const sectionSettings = document.getElementById('section-settings');
+
+        function resetTabs() {
+            // إعادة تعيين ألوان وتنسيقات الأزرار لتبدو غير نشطة
+            [tabStats, tabUsers, tabSettings].forEach(btn => {
+                btn.className = "flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition w-full text-right";
+            });
+            // إخفاء كافة الأقسام
+            sectionStats.classList.add('hidden');
+            sectionUsers.classList.add('hidden');
+            sectionSettings.classList.add('hidden');
+        }
+
+        tabStats.addEventListener('click', () => {
+            resetTabs();
+            tabStats.className = "flex items-center gap-3 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl transition w-full text-right";
+            sectionStats.classList.remove('hidden');
+        });
+
+        tabUsers.addEventListener('click', () => {
+            resetTabs();
+            tabUsers.className = "flex items-center gap-3 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl transition w-full text-right";
+            sectionUsers.classList.remove('hidden');
+        });
+
+        tabSettings.addEventListener('click', () => {
+            resetTabs();
+            tabSettings.className = "flex items-center gap-3 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl transition w-full text-right";
+            sectionSettings.classList.remove('hidden');
+        });
+
+
+        // -------------------------------------------------------------
+        // 3. بناء وتجهيز وتحديث الرسم البياني والبيانات الحية
+        // -------------------------------------------------------------
+        const ctx = document.getElementById('rolesChart').getContext('2d');
+        const rolesChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['مرضى', 'مقدمي رعاية', 'مدراء'],
+                datasets: [{
+                    data: [0, 0, 0], 
+                    backgroundColor: ['#3b82f6', '#a855f7', '#f59e0b'], 
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 12 }, boxWidth: 12 } }
+                }
+            }
+        });
+
+        // قراءة البيانات وتحديث الكروت والجدولين في نفس الوقت تلقائياً
+        onSnapshot(collection(db, "users"), (snapshot) => {
+            let totalPatients = 0;
+            let totalDoctors = 0;
+            let totalAdmins = 0;
+            
+            const recentTableBody = document.getElementById('recent-accounts-table');
+            const allUsersTableBody = document.getElementById('all-users-table');
+            
+            if (recentTableBody) recentTableBody.innerHTML = ""; 
+            if (allUsersTableBody) allUsersTableBody.innerHTML = ""; 
+
+            snapshot.forEach((docSnap) => {
+                const userData = docSnap.data();
+                const role = userData.role || "";
+                const name = userData.name || userData.email || "مستخدم جديد";
+                const status = userData.status || "نشط"; 
+
+                if (role === "patient") totalPatients++;
+                else if (role === "caregiver" || role === "doctor") totalDoctors++;
+                else if (role === "admin" || role === "manager") totalAdmins++;
+
+                let roleText = "مدير";
+                let roleColor = "text-amber-500";
+                if (role === "patient") { roleText = "مريض"; roleColor = "text-blue-600"; }
+                else if (role === "caregiver" || role === "doctor") { roleText = "مقدم رعايه"; roleColor = "text-purple-600"; }
+
+                let statusBadge = `<span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">نشط</span>`;
+                if (status === "انتظار") {
+                    statusBadge = `<span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">انتظار</span>`;
+                }
+
+                // كود الصف المراد إضافته في الجداول
+                const rowHTML = `
+                    <td class="py-4 px-6 font-semibold text-slate-700">${name}</td>
+                    <td class="py-4 px-6 ${roleColor} font-medium">${roleText}</td>
+                    <td class="py-4 px-6">${statusBadge}</td>
+                `;
+
+                // 1. تعبئة جدول الواجهة الرئيسية (Recent)
+                if (recentTableBody) {
+                    const row = document.createElement('tr');
+                    row.className = "border-b border-slate-100 hover:bg-slate-50/50 transition text-right";
+                    row.innerHTML = rowHTML;
+                    recentTableBody.appendChild(row);
+                }
+
+                // 2. تعبئة جدول صفحة إدارة المستخدمين بالكامل (All Users)
+                if (allUsersTableBody) {
+                    const row = document.createElement('tr');
+                    row.className = "border-b border-slate-100 hover:bg-slate-50/50 transition text-right";
+                    row.innerHTML = rowHTML;
+                    allUsersTableBody.appendChild(row);
+                }
+            });
+
+            // تحديث كروت الأرقام العلوية
+            if (document.getElementById('total-patients')) document.getElementById('total-patients').innerText = totalPatients;
+            if (document.getElementById('total-doctors')) document.getElementById('total-doctors').innerText = totalDoctors;
+
+            // تحديث الأرقام والنسب المئوية للرسم البياني الدائري
+            rolesChart.data.datasets[0].data = [totalPatients, totalDoctors, totalAdmins];
+            rolesChart.update();
+
+        }, (error) => {
+            console.error("خطأ في جلب البيانات:", error);
+        });
+
+        // -------------------------------------------------------------
+        // 4. تفعيل تسر تسجيل الخروج
+        // -------------------------------------------------------------
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                signOut(auth).then(() => { window.location.href = 'index.html'; });
+            });
+        }
+    </script>
+</body>
+</html>
